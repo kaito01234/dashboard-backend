@@ -1,0 +1,35 @@
+{
+	"name": "Dashboard-backend",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	"remoteEnv": {
+	  "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+	},
+	"customizations": {
+	  "vscode": {
+		"extensions": [
+		  "dbaeumer.vscode-eslint",
+		  "esbenp.prettier-vscode",
+		  "leizongmin.node-module-intellisense",
+		  "ms-vscode.vscode-typescript-next",
+		  "ms-vscode-remote.remote-containers",
+		  "ms-azuretools.vscode-docker",
+		  "mhutchie.git-graph",
+		  "eamodio.gitlens",
+		  "shardulm94.trailing-spaces"
+		]
+	  }
+	},
+	"features": {
+	  "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+		"version": "latest",
+		"enableNonRootDocker": "true",
+		"moby": "true"
+	  },
+	  "ghcr.io/devcontainers/features/aws-cli:1": {},
+	  "ghcr.io/devcontainers/features/node:1": {}
+	},
+	"postCreateCommand": ".devcontainer/postCreateCommand.sh"
+  }
+  

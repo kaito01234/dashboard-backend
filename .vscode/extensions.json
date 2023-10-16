@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "leizongmin.node-module-intellisense",
+    "ms-vscode.vscode-typescript-next",
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    "mhutchie.git-graph",
+    "eamodio.gitlens",
+    "shardulm94.trailing-spaces"
+  ]
+}
