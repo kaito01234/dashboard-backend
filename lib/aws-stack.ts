@@ -15,6 +15,6 @@ export class AwsStack extends cdk.Stack {
     });
 
     // Create
-    new CreateEnv(this, 'Create', { ...props, table });
+    // new CreateEnv(this, 'Create', { ...props, table });
   }
 }
