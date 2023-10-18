@@ -32,16 +32,16 @@ export class CreateEnv extends cdk.Stack {
     super(scope, id, props);
 
     // CodeBuildロール
-    const migrateRole = new iam.Role(scope, 'MigrateResetRole', {
-      roleName: 'TemporaryEnv-MigrateResetRole',
+    const createStackRole = new iam.Role(scope, 'CreateStackRole', {
+      roleName: 'TemporaryEnv-CreateStackRole',
       assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
       managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')],
     });
-    // MigrateReset
-    const migrateReset = new codebuild.Project(scope, 'MigrateReset', {
-      projectName: 'TemporaryEnv-MigrateReset',
-      role: migrateRole,
-      buildSpec: codebuild.BuildSpec.fromObjectToYaml(loadYamlToJson('./buildspec/TemporaryEnv-MigrateReset.yml')),
+    // CreateStack
+    const createStack = new codebuild.Project(scope, 'CreateStack', {
+      projectName: 'TemporaryEnv-CreateStack',
+      role: createStackRole,
+      buildSpec: codebuild.BuildSpec.fromObjectToYaml(loadYamlToJson('./buildspec/TemporaryEnv-CreateStack.yml')),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
         computeType: codebuild.ComputeType.MEDIUM,
@@ -50,23 +50,42 @@ export class CreateEnv extends cdk.Stack {
 
     const stateMachine = new sfn.StateMachine(scope, 'CreateTemporaryEnv', {
       stateMachineName: 'CreateTemporaryEnv',
-      definition: new tasks.DynamoPutItem(this, 'StatusCreate', {
+      definition: new tasks.DynamoPutItem(scope, 'StatusCreateStep', {
         item: {
           id: tasks.DynamoAttributeValue.fromString('aaa'),
           name: tasks.DynamoAttributeValue.fromString('aaa'),
           branch: tasks.DynamoAttributeValue.fromString('aaa'),
           url: tasks.DynamoAttributeValue.fromString('aaa'),
-          status: tasks.DynamoAttributeValue.fromString('aaa'),
+          status: tasks.DynamoAttributeValue.fromString('create'),
           e2e: tasks.DynamoAttributeValue.fromString('aaa'),
           priority: tasks.DynamoAttributeValue.fromString('aaa'),
           createData: tasks.DynamoAttributeValue.fromString('aaa'),
         },
         table: props.table,
-      }).next(
-        new tasks.CodeBuildStartBuild(this, 'MigrateReset', {
-          project: migrateReset,
-        })
-      ),
+      })
+        .next(
+          new tasks.CodeBuildStartBuild(scope, 'CreateStackStep', {
+            project: createStack,
+          })
+        )
+        .next(
+          new tasks.CodeBuildStartBuild(scope, 'CreateStackStep', {
+            project: createStack,
+          })
+        ),
     });
   }
 }
+// new tasks.DynamoPutItem(scope, 'StatusStartInstanceStep', {
+//   item: {
+//     id: tasks.DynamoAttributeValue.fromString('aaa'),
+//     name: tasks.DynamoAttributeValue.fromString('aaa'),
+//     branch: tasks.DynamoAttributeValue.fromString('aaa'),
+//     url: tasks.DynamoAttributeValue.fromString('aaa'),
+//     status: tasks.DynamoAttributeValue.fromString('start'),
+//     e2e: tasks.DynamoAttributeValue.fromString('aaa'),
+//     priority: tasks.DynamoAttributeValue.fromString('aaa'),
+//     createData: tasks.DynamoAttributeValue.fromString('aaa'),
+//   },
+//   table: props.table,
+// })
