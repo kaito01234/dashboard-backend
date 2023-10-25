@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { AwsStack } from '../lib/aws-stack';
+import { TemporaryDashboardStack } from '../lib/temporary-dashboard-stack';
 
 const app = new cdk.App();
 
@@ -10,6 +10,6 @@ const env = {
   region: 'ap-northeast-1',
 };
 
-new AwsStack(app, 'AwsStack', {
+new TemporaryDashboardStack(app, 'TemporaryDashboardStack', {
   env,
 });

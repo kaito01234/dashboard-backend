@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  localstack-full:
+  localstack:
     image: localstack/localstack:latest
     ports:
       - 4566:4566
@@ -10,4 +10,4 @@ services:
       - DEFAULT_REGION=ap-northeast-1
 
 volumes:
-  localstack-full:
+  localstack:
