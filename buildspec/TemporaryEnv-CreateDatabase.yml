@@ -10,14 +10,9 @@ phases:
       nodejs: 18.x
     commands:
       - echo "Installing dependencies..."
-      # - yarn install --frozen-lockfile
 
   pre_build:
     commands:
-      # - find . -type f -name '*.env.template' | xargs -I {} bash -c 'cp {} ${0/.env.template/.env}' {}
-      # - find . -type f -name '.env' | xargs sed -E -i "s#mysql://root:root@(host.docker.internal|localhost|127.0.0.1):3307/(.*)#mysql://root:root@$DB_HOST:3306/\2-$URL#g"
 
   build:
     commands:
-      # - yarn prisma-cli-generate
-      # - yarn migrate:reset

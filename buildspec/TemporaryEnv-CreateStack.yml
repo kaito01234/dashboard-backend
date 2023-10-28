@@ -14,4 +14,3 @@ phases:
   build:
     commands:
       - PRIORITY=$(shuf -i 1-50000 -n 1)
-      # - npx cdk deploy $URL-InstanceStack --ci --require-approval never -c branch=$BRANCH -c url=$URL -c priority=$PRIORITY -c notification=false

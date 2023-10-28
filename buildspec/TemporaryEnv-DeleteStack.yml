@@ -13,4 +13,3 @@ phases:
 
   build:
     commands:
-      # - npx cdk destroy $URL-InstanceStack --ci --force -c branch=del -c url=$URL -c priority=del -c notification=false
