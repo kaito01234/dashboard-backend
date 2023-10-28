@@ -14,7 +14,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const getCommand = new GetItemCommand({
     TableName: 'TemporaryDashboard',
     Key: {
-      ['id']: { S: 'pkValue' },
+      id: { S: 'pkValue' },
     },
   });
   const response = await client.send(getCommand);
@@ -38,11 +38,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify('Success'),
     };
-  } else {
-    return {
-      statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify('Key not found'),
-    };
   }
+  return {
+    statusCode: 200,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify('Key not found'),
+  };
 };

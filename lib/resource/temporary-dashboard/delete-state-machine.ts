@@ -3,11 +3,12 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import { loadYamlToJson } from '../../util/loadYamlToJson';
+
+import { loadYamlToJson } from '@/util/loadYamlToJson';
 
 /**
  * ResourceProps
@@ -27,6 +28,9 @@ interface ResourceProps extends cdk.StackProps {
  * deleteStateMachine
  */
 export class DeleteStateMachine extends cdk.Stack {
+  /**
+   *
+   */
   public stateMachine: sfn.StateMachine;
 
   /**
@@ -37,6 +41,9 @@ export class DeleteStateMachine extends cdk.Stack {
    */
   constructor(scope: Construct, id: string, props: ResourceProps) {
     super(scope, id, props);
+
+    const owner = 'xxxxxxxx';
+    const repo = 'xxxxxxxx';
 
     /*
      * Start
@@ -89,8 +96,8 @@ export class DeleteStateMachine extends cdk.Stack {
     const deleteStack = new codebuild.Project(scope, `${id}-DeleteStackProject`, {
       projectName: 'TemporaryEnv-DeleteStack',
       source: codebuild.Source.gitHub({
-        owner: 'Yayoi-KK',
-        repo: 'nextgen_payroll_infra',
+        owner,
+        repo: `${repo}_infra`,
         branchOrRef: 'main',
       }),
       vpc: props.vpc,

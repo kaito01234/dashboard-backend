@@ -20,6 +20,9 @@ interface ResourceProps extends cdk.StackProps {
  * UpdateTestResultFunction
  */
 export class UpdateTestResultFunction extends cdk.Stack {
+  /**
+   *
+   */
   public nodejsFunction: nodejs.NodejsFunction;
 
   /**

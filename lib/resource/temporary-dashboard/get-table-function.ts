@@ -20,6 +20,9 @@ interface ResourceProps extends cdk.StackProps {
  * GetTableFunction
  */
 export class GetTableFunction extends cdk.Stack {
+  /**
+   *
+   */
   public nodejsFunction: nodejs.NodejsFunction;
 
   /**

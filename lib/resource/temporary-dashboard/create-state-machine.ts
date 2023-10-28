@@ -3,11 +3,12 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import { loadYamlToJson } from '../../util/loadYamlToJson';
+
+import { loadYamlToJson } from '@/util/loadYamlToJson';
 
 /**
  * ResourceProps
@@ -27,6 +28,9 @@ interface ResourceProps extends cdk.StackProps {
  * createStateMachine
  */
 export class CreateStateMachine extends cdk.Stack {
+  /**
+   *
+   */
   public stateMachine: sfn.StateMachine;
 
   /**
@@ -37,6 +41,9 @@ export class CreateStateMachine extends cdk.Stack {
    */
   constructor(scope: Construct, id: string, props: ResourceProps) {
     super(scope, id, props);
+
+    const owner = 'xxxxxxxx';
+    const repo = 'xxxxxxxx';
 
     /*
      * Start
@@ -98,8 +105,8 @@ export class CreateStateMachine extends cdk.Stack {
     const createDatabase = new codebuild.Project(scope, `${id}-CreateDatabaseProject`, {
       projectName: 'TemporaryEnv-CreateDatabase',
       source: codebuild.Source.gitHub({
-        owner: 'Yayoi-KK',
-        repo: 'nextgen_payroll',
+        owner,
+        repo,
         branchOrRef: 'main',
       }),
       vpc: props.vpc,
@@ -137,8 +144,8 @@ export class CreateStateMachine extends cdk.Stack {
     const createStack = new codebuild.Project(scope, `${id}-CreateStackProject`, {
       projectName: 'TemporaryEnv-CreateStack',
       source: codebuild.Source.gitHub({
-        owner: 'Yayoi-KK',
-        repo: 'nextgen_payroll_infra',
+        owner,
+        repo: `${repo}_infra`,
         branchOrRef: 'main',
       }),
       vpc: props.vpc,

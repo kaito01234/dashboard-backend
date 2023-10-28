@@ -5,7 +5,7 @@ import dayjs = require('dayjs');
 
 const client = new DynamoDBClient({ region: 'ap-northeast-1' });
 
-export type TableData = {
+type TableData = {
   id: string;
   name: string;
   branch: string;
@@ -26,22 +26,20 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const command = new ScanCommand({ TableName: 'TemporaryDashboard' });
   const response = await client.send(command);
   const tableList: TableData[] =
-    response.Items?.map(function (item) {
-      return {
-        id: item.id?.S ?? '',
-        name: item.name?.S ?? '',
-        branch: item.branch?.S ?? '',
-        url: item.url?.S ?? '',
-        envStatus: item.envStatus?.S ?? '',
-        e2e: item.e2e?.S ?? '',
-        priority: item.priority?.S ?? '',
-        createData: item.createData?.S ?? '',
-      };
-    }) ?? [];
+    response.Items?.map((item) => ({
+      id: item.id?.S ?? '',
+      name: item.name?.S ?? '',
+      branch: item.branch?.S ?? '',
+      url: item.url?.S ?? '',
+      envStatus: item.envStatus?.S ?? '',
+      e2e: item.e2e?.S ?? '',
+      priority: item.priority?.S ?? '',
+      createData: item.createData?.S ?? '',
+    })) ?? [];
 
-  const result: TableData[] = tableList.sort(function (a, b) {
-    return dayjs(a.createData) < dayjs(b.createData) ? -1 : 1; //オブジェクトの昇順ソート
-  });
+  const result: TableData[] = tableList.sort(
+    (a, b) => (dayjs(a.createData) < dayjs(b.createData) ? -1 : 1) // オブジェクトの昇順ソート
+  );
 
   return {
     statusCode: 200,

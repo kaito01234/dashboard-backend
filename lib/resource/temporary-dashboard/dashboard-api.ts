@@ -2,11 +2,11 @@ import { Construct } from 'constructs';
 
 import * as cdk from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
-import * as logs from 'aws-cdk-lib/aws-logs';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
+import * as wafv2 from 'aws-cdk-lib/aws-wafv2';
 
 /**
  * ResourceProps
@@ -34,6 +34,9 @@ interface ResourceProps extends cdk.StackProps {
  * API Gateway作成
  */
 export class DashboardApi extends cdk.Stack {
+  /**
+   *
+   */
   public stateMachine: sfn.StateMachine;
 
   /**

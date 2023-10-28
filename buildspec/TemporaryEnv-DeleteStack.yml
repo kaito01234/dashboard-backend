@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - n 20
+
+  pre_build:
+    commands:
+      - npm ci
+
+  build:
+    commands:
+      # - npx cdk destroy $URL-InstanceStack --ci --force -c branch=del -c url=$URL -c priority=del -c notification=false
