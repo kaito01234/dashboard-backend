@@ -43,7 +43,7 @@ export class TemporaryDashboardStack extends cdk.Stack {
     // DeleteStateMachine
     const deleteStateMachine = new DeleteStateMachine(this, 'DeleteStateMachine', { ...props, vpc, table });
 
-    // GetTemporaryTableFunction
+    // GetTableFunction
     const getTableFunction = new GetTableFunction(this, 'GetTableFunction', { ...props, table });
 
     // UpdateTestResultFunction

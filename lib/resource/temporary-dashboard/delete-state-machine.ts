@@ -15,7 +15,7 @@ import { loadYamlToJson } from '@/util/loadYamlToJson';
  */
 interface ResourceProps extends cdk.StackProps {
   /**
-   * @property {dynamodb.TableV2} vpc VPC
+   * @property {ec2.IVpc} vpc VPC
    */
   vpc: ec2.IVpc;
   /**
@@ -25,7 +25,7 @@ interface ResourceProps extends cdk.StackProps {
 }
 
 /**
- * deleteStateMachine
+ * DeleteStateMachine
  */
 export class DeleteStateMachine extends cdk.Stack {
   /**
@@ -34,7 +34,7 @@ export class DeleteStateMachine extends cdk.Stack {
   public stateMachine: sfn.StateMachine;
 
   /**
-   * deleteStateMachine
+   * DeleteStateMachine
    * @param {Construct} scope コンストラクト
    * @param {string} id スタック名
    * @param {ResourceProps} props 設定

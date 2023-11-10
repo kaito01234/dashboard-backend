@@ -22,11 +22,10 @@
     }
   },
   "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "moby": true,
-      "installDockerBuildx": true,
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
       "version": "latest",
-      "dockerDashComposeVersion": "v2"
+      "enableNonRootDocker": "true",
+      "moby": "true"
     },
     "ghcr.io/devcontainers/features/aws-cli:1": {},
     "ghcr.io/devcontainers-contrib/features/volta:1": {}

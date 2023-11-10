@@ -15,7 +15,7 @@ import { loadYamlToJson } from '@/util/loadYamlToJson';
  */
 interface ResourceProps extends cdk.StackProps {
   /**
-   * @property {dynamodb.TableV2} vpc VPC
+   * @property {ec2.IVpc} vpc VPC
    */
   vpc: ec2.IVpc;
   /**
@@ -25,7 +25,7 @@ interface ResourceProps extends cdk.StackProps {
 }
 
 /**
- * createStateMachine
+ * CreateStateMachine
  */
 export class CreateStateMachine extends cdk.Stack {
   /**
@@ -34,7 +34,7 @@ export class CreateStateMachine extends cdk.Stack {
   public stateMachine: sfn.StateMachine;
 
   /**
-   * createStateMachine
+   * CreateStateMachine
    * @param {Construct} scope コンストラクト
    * @param {string} id スタック名
    * @param {ResourceProps} props 設定
@@ -73,22 +73,6 @@ export class CreateStateMachine extends cdk.Stack {
         priority: tasks.DynamoAttributeValue.fromString(''),
         createData: tasks.DynamoAttributeValue.fromString(sfn.JsonPath.stringAt('$.createData')),
       },
-      resultPath: '$.output',
-    });
-
-    /*
-     * DynamoDB-StatusLaunch
-     */
-    const dbStatusLaunchStep = new tasks.DynamoUpdateItem(scope, `${id}-DynamoDB-StatusLaunch`, {
-      stateName: 'DynamoDB-StatusCreating',
-      table: props.table,
-      key: {
-        id: tasks.DynamoAttributeValue.fromString(sfn.JsonPath.stringAt('$.uuid')),
-      },
-      expressionAttributeValues: {
-        ':newStatus': tasks.DynamoAttributeValue.fromString('Creating'),
-      },
-      updateExpression: 'SET envStatus = :newStatus',
       resultPath: '$.output',
     });
 
@@ -153,7 +137,7 @@ export class CreateStateMachine extends cdk.Stack {
       buildSpec: codebuild.BuildSpec.fromObjectToYaml(loadYamlToJson('./buildspec/TemporaryEnv-CreateStack.yml')),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
-        computeType: codebuild.ComputeType.MEDIUM,
+        computeType: codebuild.ComputeType.SMALL,
       },
     });
     // step
@@ -173,6 +157,26 @@ export class CreateStateMachine extends cdk.Stack {
       },
       resultPath: '$.output',
     });
+
+    /*
+     * DynamoDB-StatusLaunch
+     */
+    const dbStatusLaunchStep = new tasks.DynamoUpdateItem(scope, `${id}-DynamoDB-StatusLaunch`, {
+      stateName: 'DynamoDB-StatusCreating',
+      table: props.table,
+      key: {
+        id: tasks.DynamoAttributeValue.fromString(sfn.JsonPath.stringAt('$.uuid')),
+      },
+      expressionAttributeValues: {
+        ':newStatus': tasks.DynamoAttributeValue.fromString('Creating'),
+      },
+      updateExpression: 'SET envStatus = :newStatus',
+      resultPath: '$.output',
+    });
+
+    // const choice = new sfn.Choice(this, 'Choice')
+    //   .when(sfn.Condition.stringEquals('$.branch', 'left'), new sfn.Pass(this, 'Left Branch'))
+    //   .when(sfn.Condition.stringEquals('$.branch', 'right'), new sfn.Pass(this, 'Right Branch'));
 
     // StateMachine
     this.stateMachine = new sfn.StateMachine(scope, `${id}-CreateEnv`, {

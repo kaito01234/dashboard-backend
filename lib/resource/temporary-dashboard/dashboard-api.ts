@@ -48,8 +48,6 @@ export class DashboardApi extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ResourceProps) {
     super(scope, id, props);
 
-    const inboundIps = ['27.110.18.12/32', '52.193.103.110/32', '133.32.129.14/32'];
-
     /*
      * API Gateway
      */
@@ -65,27 +63,6 @@ export class DashboardApi extends cdk.Stack {
       restApiName: 'TemporaryDashboardApi',
       cloudWatchRole: true,
       cloudWatchRoleRemovalPolicy: cdk.RemovalPolicy.DESTROY,
-      policy: new iam.PolicyDocument({
-        statements: [
-          new iam.PolicyStatement({
-            effect: iam.Effect.ALLOW,
-            principals: [new iam.AnyPrincipal()],
-            actions: ['execute-api:Invoke'],
-            resources: ['execute-api:/*/*/*'],
-          }),
-          new iam.PolicyStatement({
-            effect: iam.Effect.DENY,
-            principals: [new iam.AnyPrincipal()],
-            actions: ['execute-api:Invoke'],
-            resources: ['execute-api:/*/*/*'],
-            conditions: {
-              NotIpAddress: {
-                'aws:SourceIp': inboundIps,
-              },
-            },
-          }),
-        ],
-      }),
       deployOptions: {
         accessLogDestination: new apigateway.LogGroupLogDestination(log),
         accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
@@ -95,7 +72,17 @@ export class DashboardApi extends cdk.Stack {
       },
     });
 
-    // AWSサービス実行ロール
+    // APIキーを作成
+    const apiKey = api.addApiKey('ApiKey', { apiKeyName: 'ApiKey' });
+    // 使用量プランを作ってAPIキー・API・ステージを紐付け
+    const plan = api.addUsagePlan('UsagePlan', { name: 'ApiUsageplan' });
+    plan.addApiKey(apiKey);
+    plan.addApiStage({ stage: api.deploymentStage });
+
+    // API
+    const webapi = api.root.addResource('api', { defaultMethodOptions: { apiKeyRequired: true } });
+
+    // StepFunctions実行ロール
     const statesExecutionRole = new iam.Role(scope, 'StatesExecutionRole', {
       assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
       inlinePolicies: {
@@ -111,7 +98,7 @@ export class DashboardApi extends cdk.Stack {
     });
 
     // CreateStateMachine
-    api.root.addMethod(
+    webapi.addMethod(
       'POST',
       new apigateway.AwsIntegration({
         service: 'states',
@@ -152,7 +139,7 @@ export class DashboardApi extends cdk.Stack {
     );
 
     // deleteStateMachine
-    api.root.addMethod(
+    webapi.addMethod(
       'DELETE',
       new apigateway.AwsIntegration({
         service: 'states',
@@ -193,25 +180,17 @@ export class DashboardApi extends cdk.Stack {
     );
 
     // GetTemporaryTableFunction
-    api.root.addMethod('GET', new apigateway.LambdaIntegration(props.getTableFunction));
+    webapi.addMethod('GET', new apigateway.LambdaIntegration(props.getTableFunction));
 
     // UpdateTestResultFunction
-    api.root.addMethod('PUT', new apigateway.LambdaIntegration(props.updateTestResultFunction));
+    webapi.addMethod('PUT', new apigateway.LambdaIntegration(props.updateTestResultFunction));
 
     /*
      * AWS WAF
      */
-    // アクセスを許可するIPアドレス
-    const cfnIPSet = new wafv2.CfnIPSet(scope, 'TemporaryDashboardIPSet', {
-      name: 'TemporaryDashboardIPSet',
-      ipAddressVersion: 'IPV4',
-      scope: 'REGIONAL',
-      addresses: inboundIps,
-    });
-
     // WAFの作成
     const webAcl = new wafv2.CfnWebACL(scope, 'TemporaryDashboardAcl', {
-      defaultAction: { block: {} },
+      defaultAction: { allow: {} },
       scope: 'REGIONAL',
       name: 'TemporaryDashboardAcl',
       visibilityConfig: {
@@ -219,23 +198,6 @@ export class DashboardApi extends cdk.Stack {
         sampledRequestsEnabled: true,
         metricName: 'TemporaryDashboardAcl',
       },
-      rules: [
-        {
-          name: 'TemporaryDashboardIpSetRule',
-          priority: 1,
-          statement: {
-            ipSetReferenceStatement: {
-              arn: cfnIPSet.attrArn,
-            },
-          },
-          action: { allow: {} },
-          visibilityConfig: {
-            sampledRequestsEnabled: true,
-            cloudWatchMetricsEnabled: true,
-            metricName: 'TemporaryDashboardIpSetRule',
-          },
-        },
-      ],
     });
     const association = new wafv2.CfnWebACLAssociation(scope, 'AssociationApiGateway', {
       resourceArn: `arn:aws:apigateway:ap-northeast-1::/restapis/${api.restApiId}/stages/prod`,
